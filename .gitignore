@@ -1,0 +1,65 @@
+# IntelliJ configuration
+.idea
+*.iml
+
+# VS Code configuration
+.history/
+
+# Python, build and test output
+__pycache__/
+.eggs/
+.coverage*
+dist/
+*egg-info/
+_build/
+build/
+*dist
+*.pyc
+coverage*.xml
+htmlcov/
+test*.xml
+/Pipfile
+.mypy_cache/
+
+# Generated documentation
+*/doc/api
+*/doc/index.rst
+
+# Virtual environment
+venv/
+.venv
+
+# sonar-scanner
+.scannerwork/
+sonar-scanner-*/
+sonar-scanner-cli.zip
+travis/sonar-project.properties
+
+# macOS
+.DS_Store
+
+# Output files
+.cache/
+scratchpad/
+*.csv
+*.csv.gz
+*.tsv.gz
+*.log
+
+# Setup
+setup.cfg
+
+### Environment variables ###
+.env
+
+# Custom
+.untracked/
+
+# Pyenv
+.python-version
+
+# Jsonnet development.
+vendor
+
+# picnic-sql
+.picnic_sql_cache.json

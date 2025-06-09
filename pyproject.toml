@@ -1,0 +1,21 @@
+[project]
+name = "Breaking HTTP Boundaries: ASGI to build your fleet management system in Python"
+version = "0.1.0"
+description = "Implementation of ASGI stack for Teltonika protocol."
+authors = [
+    {name = "Kirill Druzhinin", email = "kirill.druzhinin@teampicnic.com"},
+]
+dependencies = ["nicegui>=2.15.0"]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.dev-dependencies]
+lint = [
+    "ruff~=0.2.2",
+    "mypy~=1.8",
+]
