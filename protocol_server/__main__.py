@@ -45,8 +45,8 @@ async def main():
     logging.basicConfig(level=logging.DEBUG)
 
     # Load ASGI applications.
-    tcp_app = load_app("application.main:tcp_app")
-    config = uvicorn.Config("application.main:http_app")
+    tcp_app = load_app("application.telematica:app")
+    config = uvicorn.Config("application.web:app")
 
     # Initialize servers.
     http_server = uvicorn.Server(config)
