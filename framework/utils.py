@@ -106,7 +106,6 @@ class AVLData:
     def from_bytes(cls, b: bytearray) -> Self:
         stream = ByteReader(b)
         codec = stream.read_u8()
-        print(codec)
         record_count = stream.read_u8()
         records = [AVLDataRecord.from_stream(stream) for _ in range(record_count)]
         return cls(codec=codec, record_count=record_count, records=records)

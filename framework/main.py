@@ -3,7 +3,7 @@
 from framework.utils import AVLData, Login
 
 
-class Fastonika:
+class Telematica:
     """ASGI framework to build ASGI applications for Teltonika."""
 
     def __init__(self):

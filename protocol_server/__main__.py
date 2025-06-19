@@ -6,6 +6,8 @@ import logging
 import sys
 from pathlib import Path
 
+import uvicorn
+
 from protocol_server.server import TeltonikaProtocol
 
 LOGGER = logging.getLogger("server")
@@ -32,20 +34,28 @@ def load_app(module_app: str):
     return app
 
 
-async def main():
-    """Start ASGI server for Teltonika.
-
-    Load application and start server on localhost:8081.
-    """
-    app = load_app(sys.argv[-1])
+async def get_tcp_server(tcp_app):
     host, port = "127.0.0.1", 8081
+    loop = asyncio.get_running_loop()
+    server = await loop.create_server(lambda: TeltonikaProtocol(tcp_app), host, port)
+    return server
+
+
+async def main():
     logging.basicConfig(level=logging.DEBUG)
 
-    loop = asyncio.get_running_loop()
-    server = await loop.create_server(lambda: TeltonikaProtocol(app), host, port)
-    LOGGER.info("Server started at {}:{}".format(host, port))
+    # Load ASGI applications.
+    tcp_app = load_app("application.main:tcp_app")
+    config = uvicorn.Config("application.main:http_app")
 
-    await server.serve_forever()
+    # Initialize servers.
+    http_server = uvicorn.Server(config)
+    tcp_server = await get_tcp_server(tcp_app)
+
+    # Run servers.
+    LOGGER.info("Starting TCP and HTTP servers...")
+    await asyncio.gather(http_server.serve(), tcp_server.serve_forever())
 
 
-asyncio.run(main())
+if __name__ in {"__main__"}:
+    asyncio.run(main())
