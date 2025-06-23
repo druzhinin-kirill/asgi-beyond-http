@@ -48,8 +48,8 @@ class AVLDataRecord:
         timestamp = datetime.fromtimestamp(ts / 1000).isoformat()
 
         priority = stream.read_u8()
-        latitude = stream.read_i32() / 10_000_000
         longitude = stream.read_i32() / 10_000_000
+        latitude = stream.read_i32() / 10_000_000
         altitude = stream.read_i16()
         angle = stream.read_i16()
         satellites = stream.read_u8()

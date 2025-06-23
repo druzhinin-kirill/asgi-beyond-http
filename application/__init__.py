@@ -1,1 +1,1 @@
-"""ASGI app implementation."""
+"""Module with UI and TCP ASGI apps."""
