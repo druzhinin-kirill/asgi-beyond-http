@@ -10,12 +10,14 @@ app = Telematica()
 
 @app.login()
 async def login(login: Login):
+    """Handle incoming login packets."""
     print(login)
     return "Hello, world!"
 
 
 @app.avl()
 async def avl(avldata: AVLData):
+    """Handle incoming data packets."""
     for record in avldata.records:
         records.put_nowait(record)
         vehicle.lat, vehicle.lng = record.latitude, record.longitude
