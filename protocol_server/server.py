@@ -82,17 +82,21 @@ class TeltonikaProtocol(asyncio.Protocol):
 
         async def send(event):
             LOGGER.debug("Send event: {}".format(event))
+            close = False
             match event["type"]:
                 case "teltonika.login.accept":
                     msg = AcceptPacket.code
                 case "teltonika.login.reject":
                     msg = RejectPacket.code
+                    close = True
                 case "teltonika.avl.accept":
                     msg = AckPacket(event["data"]).code
                 case _:
-                    raise ValueError("Unknown event")
+                    close = True
 
             self.transport.write(msg)
+            if close:
+                self.transport.close()
 
         async def receive():
             return await self.event_queue.get()

@@ -7,12 +7,14 @@ from application.data import vehicle, records
 
 app = Telematica()
 
+KNOWN_VEHICLES = ["123456789012345"]
+
 
 @app.login()
 async def login(login: Login):
     """Handle incoming login packets."""
-    print(login)
-    return "Hello, world!"
+    if login.imei not in KNOWN_VEHICLES:
+        raise ValueError("Invalid imei")
 
 
 @app.avl()

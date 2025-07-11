@@ -6,6 +6,15 @@ import socket
 import time
 import csv
 
+from teltonika import AcceptPacket
+
+
+def create_imei_packet(imei: str) -> bytes:
+    imei_bytes = imei.encode("ascii")
+    imei_length = len(imei_bytes)
+    packet = struct.pack(">H", imei_length) + imei_bytes
+    return packet
+
 
 def encode_codec8_avl_record(
     timestamp=None,
@@ -129,10 +138,19 @@ def crc16(data: bytes) -> int:
     return crc & 0xFFFF
 
 
-def vehicle_session(address: tuple[str, int], filename: str, sleep: float):
+def vehicle_session(address: tuple[str, int], filename: str, imei: str, sleep: float):
     """Send telemetry data"""
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect(address)
+
+    # Send IMEI packet first
+    imei_packet = create_imei_packet(imei)
+    client_socket.send(imei_packet)
+
+    # Verify auth
+    auth_response = client_socket.recv(1)
+    if auth_response != AcceptPacket.code:
+        raise RuntimeError("Failed to authenticate to server.")
 
     with open(filename, newline="", encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
@@ -144,10 +162,16 @@ def vehicle_session(address: tuple[str, int], filename: str, sleep: float):
                 timestamp=int(datetime.datetime.now().timestamp()),
             )
             client_socket.send(msg)
+            avl_response = int.from_bytes(client_socket.recv(4))
+
+            # Very data acknowledged.
+            if avl_response != 1:
+                raise RuntimeError("Vehicle data was not acknowledged.")
             time.sleep(sleep)
 
 
 if __name__ == "__main__":
     filename = "python.csv"
     address = ("localhost", 8081)
-    vehicle_session(address, filename, 0.005)
+    imei = "123456789012345"
+    vehicle_session(address, filename, imei, 0.01)

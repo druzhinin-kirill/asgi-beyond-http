@@ -35,15 +35,14 @@ class Teltonika:
         if self._state == ProtocolState.LOGIN:
             if len(self._buffer) <= 2:
                 return NeedMoreData()
-
-            if self._buffer[0] == 0x00:
-                LOGGER.debug("AVL packet out of order. Process anyway...")
-                self._state = ProtocolState.DATA
             else:
-                imei_len = self._buffer[0]
-                if len(self._buffer) >= 1 + imei_len:
-                    raw_data = self._buffer[1 : 1 + imei_len]
-                    self._buffer = self._buffer[1 + imei_len :]
+                imei_len = int.from_bytes(self._buffer[0:2], "big")
+                total_len = 2 + imei_len
+                if len(self._buffer) < total_len:
+                    return NeedMoreData()
+                if len(self._buffer) == total_len:
+                    raw_data = self._buffer[2:]
+                    self._buffer = self._buffer[total_len:]
                     self._state = ProtocolState.DATA
                     return LoginPacket(data=raw_data)
                 else:
