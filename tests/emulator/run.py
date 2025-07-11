@@ -1,7 +1,10 @@
+"""Script to emulate vehicle session."""
+
 import struct
 import datetime
 import socket
 import time
+import csv
 
 
 def encode_codec8_avl_record(
@@ -126,49 +129,25 @@ def crc16(data: bytes) -> int:
     return crc & 0xFFFF
 
 
-def vehicle_session(msgs: list[bytes], sleep: int) -> bytes:
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect(("localhost", 8081))
+def vehicle_session(address: tuple[str, int], filename: str, sleep: float):
+    """Send telemetry data"""
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(address)
 
-    for msg in msgs:
-        clientsocket.send(msg)
-        time.sleep(sleep)
+    with open(filename, newline="", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            msg = create_codec8_message(
+                lat=float(row["Latitude"]),
+                lon=float(row["Longitude"]),
+                speed=int(row["Speed"]),
+                timestamp=int(datetime.datetime.now().timestamp()),
+            )
+            client_socket.send(msg)
+            time.sleep(sleep)
 
 
-# Example usage:
 if __name__ == "__main__":
-    msgs = [
-        create_codec8_message(lat=52.5200, lon=13.4050, speed=50),
-        create_codec8_message(lat=52.5195, lon=13.4045, speed=50),
-        create_codec8_message(lat=52.5190, lon=13.4040, speed=50),
-        create_codec8_message(lat=52.5185, lon=13.4037, speed=50),
-        create_codec8_message(lat=52.5180, lon=13.4035, speed=50),
-        create_codec8_message(lat=52.5175, lon=13.4038, speed=50),
-        create_codec8_message(lat=52.5172, lon=13.4042, speed=50),
-        create_codec8_message(lat=52.5170, lon=13.4048, speed=50),
-        create_codec8_message(lat=52.5170, lon=13.4055, speed=50),
-        create_codec8_message(lat=52.5173, lon=13.4062, speed=50),
-        create_codec8_message(lat=52.5178, lon=13.4068, speed=50),
-        create_codec8_message(lat=52.5182, lon=13.4073, speed=50),
-        create_codec8_message(lat=52.5186, lon=13.4077, speed=50),
-        create_codec8_message(lat=52.5190, lon=13.4080, speed=50),
-        create_codec8_message(lat=52.5195, lon=13.4082, speed=50),
-        create_codec8_message(lat=52.5200, lon=13.4083, speed=50),
-        create_codec8_message(lat=52.5205, lon=13.4082, speed=50),
-        create_codec8_message(lat=52.5210, lon=13.4080, speed=50),
-        create_codec8_message(lat=52.5214, lon=13.4077, speed=50),
-        create_codec8_message(lat=52.5218, lon=13.4073, speed=50),
-        create_codec8_message(lat=52.5222, lon=13.4068, speed=50),
-        create_codec8_message(lat=52.5227, lon=13.4062, speed=50),
-        create_codec8_message(lat=52.5230, lon=13.4055, speed=50),
-        create_codec8_message(lat=52.5230, lon=13.4048, speed=50),
-        create_codec8_message(lat=52.5228, lon=13.4042, speed=50),
-        create_codec8_message(lat=52.5225, lon=13.4038, speed=50),
-        create_codec8_message(lat=52.5220, lon=13.4035, speed=50),
-        create_codec8_message(lat=52.5215, lon=13.4037, speed=50),
-        create_codec8_message(lat=52.5210, lon=13.4040, speed=50),
-        create_codec8_message(lat=52.5205, lon=13.4045, speed=50),
-        create_codec8_message(lat=52.5200, lon=13.4050, speed=50),
-    ]
-    vehicle_session(msgs, 1)
-    # print("Codec8 TCP Message (hex):", msg.hex())
+    filename = "python.csv"
+    address = ("localhost", 8081)
+    vehicle_session(address, filename, 0.005)

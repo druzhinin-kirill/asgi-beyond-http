@@ -93,6 +93,11 @@ class AVLDataRecord:
             io_elements=io_elements,
         )
 
+    @property
+    def text(self) -> str:
+        """Return simple representation of the data record."""
+        return f"{self.timestamp}: Lat: {self.latitude}, Lon: {self.longitude}, speed: {self.speed}"
+
 
 @dataclass
 class AVLData:

@@ -13,7 +13,7 @@ ui.label.default_classes("text-gray-900")
 ui.card.default_classes("col text-center")
 ui.card.default_props("flat bordered")
 
-MAP_CENTER = (52.50, 13.350)
+MAP_CENTER = (50.077019, 14.475541)
 
 
 @router.page("/")
@@ -34,16 +34,16 @@ async def index():
 
             with ui.card(align_items="center"):
                 ui.label("Live Logs").classes("text-h4")
-                logs = ui.log().classes("h-96 container")
+                logs = ui.log().classes("h-96 container justify-items-start")
 
     async def track_vehicle():
         _record = await records.get()
-        logs.push(_record)
+        logs.push(_record.text)
         marker = m.marker(latlng=vehicle.position)
 
         while True:
             record = await records.get()
-            logs.push(_record)
+            logs.push(_record.text)
             marker.move(vehicle.lat, vehicle.lng)
 
             m.generic_layer(
@@ -53,7 +53,7 @@ async def index():
                         [_record.latitude, _record.longitude],
                         [record.latitude, record.longitude],
                     ],
-                    {"color": "red", "weight": 2},
+                    {"color": "red", "weight": 3},
                 ],
             )
             _record = record

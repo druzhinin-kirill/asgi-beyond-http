@@ -37,7 +37,9 @@ def load_app(module_app: str):
 async def get_tcp_server(tcp_app):
     host, port = "127.0.0.1", 8081
     loop = asyncio.get_running_loop()
-    server = await loop.create_server(lambda: TeltonikaProtocol(tcp_app), host, port)
+    server = await loop.create_server(
+        protocol_factory=lambda: TeltonikaProtocol(tcp_app), host=host, port=port
+    )
     return server
 
 
